@@ -1,6 +1,7 @@
 import { RequestModel } from "../models/request.model";
 import { RequestStatus } from "../models/request.model";
 import { isValidTransition } from "./workflow.services";
+import { rolePermissions } from "./workflow.services";
 
 /**
  * Creates a new request in the database.
@@ -34,14 +35,21 @@ export const updateRequestStatusService = async (
   requestId: string,
   nextStatus: RequestStatus,
   comment: string,
+  userRole:string
 ) => {
     const request = await RequestModel.findById(requestId);
     if (!request) {
         throw new Error("Request not found");
     }
-    const isAllowed = isValidTransition(request.status as RequestStatus, nextStatus);
+    const currentStatus = request.status as RequestStatus;
+    const isAllowed = isValidTransition(currentStatus, nextStatus);
     if (!isAllowed) {
-        throw new Error(`Invalid status transition from ${request.status} to ${nextStatus}`);
+        throw new Error(`Invalid status transition from ${currentStatus} to ${nextStatus}`);
+    }
+      // Check role permissions
+    const allowedStatusesForRole = rolePermissions[userRole] || [];
+    if (!allowedStatusesForRole.includes(nextStatus)) {
+        throw new Error(`User role ${userRole} does not have permission to change status to ${nextStatus}`);
     }
     if((nextStatus === RequestStatus.APPROVED || nextStatus === RequestStatus.REJECTED) && (!comment || comment.trim() === "")) {
         throw new Error(`Comment is required`);

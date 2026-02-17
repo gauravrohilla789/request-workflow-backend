@@ -15,6 +15,15 @@ const allowedTransitions: Record<RequestStatus, RequestStatus[]> = {
     [RequestStatus.REJECTED]: []
 }
 
+export const rolePermissions: Record<string, RequestStatus[]> = {
+  USER: [RequestStatus.SUBMITTED],
+  ADMIN: [
+    RequestStatus.IN_PROGRESS,
+    RequestStatus.APPROVED,
+    RequestStatus.REJECTED
+  ]
+};
+
 export const isValidTransition = (currentStatus: RequestStatus, nextStatus: RequestStatus): boolean => {
     return allowedTransitions[currentStatus].includes(nextStatus);
 }
