@@ -83,79 +83,124 @@ export default function Requests() {
   };
 
   return (
-    <div>
-      {userRole === "USER" && (
-        <>
-          <h3>Create New Request</h3>
-          <form onSubmit={createRequest}>
-            <div>
-              <input
-                type="text"
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        {userRole === "USER" && (
+          <>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                Create New Request
+              </h3>
+
+              <form onSubmit={createRequest} className="space-y-4">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  />
+                </div>
+                <div>
+                  <textarea
+                    placeholder="Description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg 
+  hover:bg-indigo-700 transition"
+                >
+                  Create Request
+                </button>
+              </form>
             </div>
-            <div>
-              <textarea
-                placeholder="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
+          </>
+        )}
+
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Requests</h2>
+
+        {requests.map((req) => (
+          <div
+            key={req._id}
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4"
+          >
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="font-semibold text-gray-800">{req.title}</h4>
+
+              <span className="text-sm px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+                {req.status}
+              </span>
             </div>
-            <button type="submit">Create Request</button>
-          </form>
-        </>
-      )}
 
-      <h2>Requests</h2>
-      {requests.map((req) => (
-        <div key={req._id} style={{ border: "1px solid gray", margin: 8 }}>
-          <p>
-            <b>{req.title}</b>
-          </p>
-          <p>Status: {req.status}</p>
-          {/* USER can submit draft */}
-          {userRole === "USER" && req.status === "DRAFT" && (
-            <button onClick={() => updateStatus(req._id, "SUBMITTED")}>
-              Submit
-            </button>
-          )}
-
-          {/* ADMIN can move submitted to in progress */}
-          {userRole === "ADMIN" && req.status === "SUBMITTED" && (
-            <button onClick={() => updateStatus(req._id, "IN_PROGRESS")}>
-              Move to In Progress
-            </button>
-          )}
-
-          {/* ADMIN can approve or reject in progress */}
-          {userRole === "ADMIN" && req.status === "IN_PROGRESS" && (
-            <>
+            {/* USER can submit draft */}
+            {userRole === "USER" && req.status === "DRAFT" && (
               <button
-                onClick={() =>
-                  updateStatus(req._id, "APPROVED", "Approved via UI")
-                }
+                onClick={() => updateStatus(req._id, "SUBMITTED")}
+                className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg 
+  hover:bg-indigo-700 transition text-sm"
               >
-                Approve
+                Submit
               </button>
+            )}
 
+            {/* ADMIN can move submitted to in progress */}
+            {userRole === "ADMIN" && req.status === "SUBMITTED" && (
               <button
-                onClick={() => {
-                  const reason = prompt("Enter rejection reason:");
-                  if (reason) {
-                    updateStatus(req._id, "REJECTED", reason);
+                onClick={() => updateStatus(req._id, "IN_PROGRESS")}
+                className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg 
+  hover:bg-indigo-700 transition text-sm"
+              >
+                Move to In Progress
+              </button>
+            )}
+
+            {/* ADMIN can approve or reject in progress */}
+            {userRole === "ADMIN" && req.status === "IN_PROGRESS" && (
+              <>
+                <button
+                  onClick={() =>
+                    updateStatus(req._id, "APPROVED", "Approved via UI")
                   }
-                }}
-              >
-                Reject
-              </button>
-            </>
-          )}
+                  className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg 
+  hover:bg-indigo-700 transition text-sm"
+                >
+                  Approve
+                </button>
+
+                <button
+                  onClick={() => {
+                    const reason = prompt("Enter rejection reason:");
+                    if (reason) {
+                      updateStatus(req._id, "REJECTED", reason);
+                    }
+                  }}
+                  className="px-3 py-1.5 bg-red-600 text-white rounded-lg 
+hover:bg-red-700 transition text-sm ml-2"
+                >
+                  Reject
+                </button>
+              </>
+            )}
+          </div>
+        ))}
+        <div className="mt-8">
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-gray-800 text-white rounded-lg 
+    hover:bg-gray-900 transition"
+          >
+            Logout
+          </button>
         </div>
-      ))}
-      <button onClick={handleLogout}>Logout</button>
+      </div>
     </div>
   );
 }
